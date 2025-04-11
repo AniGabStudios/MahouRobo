@@ -9,15 +9,16 @@ using { /UnrealEngine.com/Temporary/SpatialMath }
  
 # A Verse-authored NPC Behavior that can be used within an NPC Character Definition or an NPC Spawner device's NPC Behavior Script Override.
 BehaviorKaijuLg := class(npc_behavior):
-    @editable health : float = 500.0
+    @editable health : float = 600.0
     @editable projectile_asset : creative_prop_asset = DefaultCreativePropAsset
     @editable projectile_speed : float = 5.0
-    @editable projectile_damage : float = 5.0
+    @editable projectile_damage : float = 10.0
+    @editable projectile_range : float = 2000.0
     @editable move_speed : float = 20.0
 
     HelperFunc : KaijuHelper = KaijuHelper{}
     var Attack1 : animation_sequence = (/anigab@fortnite.com/MahouRobo/Kaiju:)Giant_Anim_EnemyArmature_Attack
-
+    
     FireProjectile()<suspends>:void =
         if:
             NPCAgent := GetAgent[]
@@ -26,7 +27,7 @@ BehaviorKaijuLg := class(npc_behavior):
             MyPosition := NPCChar.GetTransform().Translation
             MyRotation := NPCChar.GetViewRotation()
             ForwardVec := MyRotation.GetLocalForward() * 400.0
-            RangeVec := MyRotation.GetLocalForward() * 5000.0
+            RangeVec := MyRotation.GetLocalForward() * projectile_range
             SpawnPos := MyPosition + ForwardVec + vector3{X := 0.0, Y := 0.0, Z := 100.0}
             EndPos := MyPosition + RangeVec
             if (NewProp := SpawnProp(projectile_asset, SpawnPos, IdentityRotation())(0)? ):
@@ -57,15 +58,23 @@ BehaviorKaijuLg := class(npc_behavior):
             NPCChar.SetHealth(health)
             NPCSpawnPoint := NPCChar.GetTransform().Translation
             loop:
-                Sleep(0.25)
+                Sleep(0.1)
                 if (NewTarget := HelperFunc.FindNearestTarget[NPCChar], NewAgent := NewTarget.GetAgent[]):
                     spawn{NPCFocus.MaintainFocus(NewAgent)}
-                    #NavTarget := MakeNavigationTarget(NewAgent)
-                    #NPCNav.NavigateTo(NavTarget, ?MovementType := movement_types.Running, ?ReachRadius := 150.0)
-                    NPCAnim.Play(Attack1)
-                    Sleep(0.46)
-                    FireProjectile()
-                
+                    if (Distance(NewTarget.GetTransform().Translation, NPCChar.GetTransform().Translation) < 150.0):
+                        NPCAnim.Play(Attack1)
+                        Sleep(0.46)
+                        NewTarget.Damage(15.0)
+                    else if (Distance(NewTarget.GetTransform().Translation, NPCChar.GetTransform().Translation) < projectile_range):
+                        NPCAnim.Play(Attack1)
+                        Sleep(0.46)
+                        FireProjectile()
+                    else:
+                        NavTarget := MakeNavigationTarget(NewAgent)
+                        NPCNav.NavigateTo(NavTarget, ?MovementType := movement_types.Running, ?ReachRadius := 150.0)
+                else:
+                    NavTarget := MakeNavigationTarget(NPCSpawnPoint)
+                    NPCNav.NavigateTo(NavTarget, ?MovementType := movement_types.Walking, ?ReachRadius := 150.0)
 
     # This function runs when the NPC is despawned or eliminated from the world.
     OnEnd<override>():void=

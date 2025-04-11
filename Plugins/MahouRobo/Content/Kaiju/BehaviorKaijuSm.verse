@@ -7,7 +7,7 @@ using { /Verse.org/Assets }
  
 # A Verse-authored NPC Behavior that can be used within an NPC Character Definition or an NPC Spawner device's NPC Behavior Script Override.
 BehaviorKaijuSm := class(npc_behavior):
-    @editable health : float := 500.0
+    @editable health : float := 200.0
     @editable projectile_speed : float := 20.0
     @editable projectile_damage : float := 5.0
     @editable move_speed : float := 20.0
@@ -34,7 +34,9 @@ BehaviorKaijuSm := class(npc_behavior):
                     NPCNav.NavigateTo(NavTarget, ?MovementType := movement_types.Running, ?ReachRadius := 150.0)
                     NPCAnim.Play(Attack1)
                     Sleep(0.46)
-                
+                else:
+                    NavTarget := MakeNavigationTarget(NPCSpawnPoint)
+                    NPCNav.NavigateTo(NavTarget, ?MovementType := movement_types.Running, ?ReachRadius := 150.0)
 
     # This function runs when the NPC is despawned or eliminated from the world.
     OnEnd<override>():void=
