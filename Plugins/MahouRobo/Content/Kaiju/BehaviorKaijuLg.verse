@@ -10,6 +10,7 @@ using { /UnrealEngine.com/Temporary/SpatialMath }
 using { /Fortnite.com/Game }
 using { /Verse.org/Random }
 using { CoreCode}
+using { /Verse.org/Verse }
 # A Verse-authored NPC Behavior that can be used within an NPC Character Definition or an NPC Spawner device's NPC Behavior Script Override.
 BehaviorKaijuLg := class(NPC_Kaiju):
     @editable projectile_asset : creative_prop_asset = DefaultCreativePropAsset
@@ -63,7 +64,7 @@ BehaviorKaijuLg := class(NPC_Kaiju):
             NPCChar := NPCAgent.GetFortCharacter[]
         then:
             NPCChar.EliminatedEvent().Subscribe(OnKaijuEliminated)
-            spawn { MovementLoop() }
+            spawn { StartPOILoop() }
 
     MovementLoop()<suspends>:void =
         Sleep(GetRandomFloat(0.2, 0.4))  # Desync from others
@@ -90,7 +91,7 @@ BehaviorKaijuLg := class(NPC_Kaiju):
         spawn{MoveToTarget(NewLocation)}  # Call and ignore result
         set isMoving = false
 
-    MoveToTarget<override>(NewLocation:vector3)<suspends>:logic =
+    MoveToTarget<override>(NewLocation: vector3)<suspends>: logic =
         if:
             NPCAgent := GetAgent[]
             NPCChar := NPCAgent.GetFortCharacter[]
@@ -101,7 +102,12 @@ BehaviorKaijuLg := class(NPC_Kaiju):
             spawn { NPCFocus.MaintainFocus(TargetPos) }
     
             NavTarget := MakeNavigationTarget(TargetPos)
-            NavResult := NPCNav.NavigateTo(NavTarget, ?MovementType := movement_types.Running, ?ReachRadius := 250.0, ?AllowPartialPath := true)
+            NavResult := NPCNav.NavigateTo(
+                NavTarget,
+                ?MovementType := movement_types.Running,
+                ?ReachRadius := 250.0,
+                ?AllowPartialPath := true
+            )
     
             if (NavResult = navigation_result.Reached or NavResult = navigation_result.PartiallyReached):
                 spawn { AttackPOIArea(TargetPos) }
@@ -111,6 +117,33 @@ BehaviorKaijuLg := class(NPC_Kaiju):
         else:
             return false
 
+    StartPOILoop()<suspends>: void =
+        var TimeRemaining: float = 0.0
+    
+        loop:
+            if (waypoint_list.Length > 0):
+                if (TimeRemaining <= 0.0):
+                    # Move to next POI
+                    if(POI := waypoint_list[currentPOIIndex]):
+                        POILoc := POI.GetTransform().Translation
+                        var Reached: logic = MoveToTarget(POILoc)
+        
+                        # Reset timer
+                        set TimeRemaining = poi_switch_interval
+        
+                        # Advance index
+                        if(PI:= Mod[currentPOIIndex + 1, waypoint_list.Length]):
+                            set currentPOIIndex = PI
+    
+                # Attack periodically during wait time
+                spawn { PlayAttackAnimation() }
+    
+                AttackDelay := GetRandomFloat(3.0, 5.0)
+                Sleep(AttackDelay)
+                set TimeRemaining -= AttackDelay
+            else:
+                Sleep(1.0)
+            
 
     AttackPOIArea(TargetPos:vector3)<suspends>:void =
         Sleep(GetRandomFloat(0.2, 0.6))

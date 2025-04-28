@@ -10,7 +10,7 @@ using { /Fortnite.com/Characters }
 
 # A Verse-authored creative device that can be placed in a level
 explosives_pool := class(creative_device,event_listener):
-
+    @editable HitSFX: audio_player_device:= audio_player_device{}
     @editable Explosives: []explosive_device = array{}
     @editable Home: vector3 = vector3{}
     # Runs when the device is started in a running game
@@ -35,17 +35,20 @@ explosives_pool := class(creative_device,event_listener):
     
                 if (Dot >= FOVThreshold):
                     PlayerChar.Damage(Damage)
+                    if(Agent:=PlayerChar.GetAgent[]):
+                        HitSFX.Play(Agent)
+                    
 
 
     OnEvent<override>(EventName: string, Data:eventdata): void =
         if(EventName = "MedKaijuAttacked"):
             if(MaybeAgent:= Data.Agent?,MaybeFArray:= Data.ValueFA?,Radius:= MaybeFArray[0], FOVAngleDegrees:= MaybeFArray[1], FCharacter:= MaybeAgent.GetFortCharacter[]):
-                spawn{CheckPlayersInFrontAndDamage(FCharacter,Radius,FOVAngleDegrees,5.0)}
+                spawn{CheckPlayersInFrontAndDamage(FCharacter,Radius,FOVAngleDegrees,30.0)}
 
         if(EventName = "SmKaijuAttacked"):
             if(MaybeAgent:= Data.Agent?,MaybeFArray:= Data.ValueFA?,Radius:= MaybeFArray[0], FOVAngleDegrees:= MaybeFArray[1], FCharacter:= MaybeAgent.GetFortCharacter[]):
-                spawn{CheckPlayersInFrontAndDamage(FCharacter,Radius,FOVAngleDegrees,10.0)}
+                spawn{CheckPlayersInFrontAndDamage(FCharacter,Radius,FOVAngleDegrees,5.0)}
 
         if(EventName = "LrgKaijuAttacked"):
             if(MaybeAgent:= Data.Agent?,MaybeFArray:= Data.ValueFA?,Radius:= MaybeFArray[0], FOVAngleDegrees:= MaybeFArray[1], FCharacter:= MaybeAgent.GetFortCharacter[]):
-                spawn{CheckPlayersInFrontAndDamage(FCharacter,Radius,FOVAngleDegrees,50.0)}
+                spawn{CheckPlayersInFrontAndDamage(FCharacter,Radius,FOVAngleDegrees,125.0)}
