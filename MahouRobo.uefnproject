@@ -5,8 +5,7 @@
 	"description": "",
 	"keyArt": "",
 	"docsUrl": "",
-	"kind": "Island",
-	"compatibilityVersion": "34.40",
+	"compatibilityVersion": "35.00",
 	"requiredRedirectorStartingVersion": "34.21.41092960",
 	"editorPermissions": [],
 	"epicApp": "",
@@ -48,10 +47,11 @@
 	"bindings":
 	{
 		"projectId": "b1ba14ad-4c99-3581-136c-a18c69140a7a",
-		"projectVersePath": "/anigab@fortnite.com/MahouRobo",
 		"modules":
 		{
 			"MahouRobo": "1f779f30-4238-3d33-e65d-f7a7530a09b2"
-		}
-	}
+		},
+		"projectVersePath": "/anigab@fortnite.com/MahouRobo"
+	},
+	"apiAccess": "Private"
 }
