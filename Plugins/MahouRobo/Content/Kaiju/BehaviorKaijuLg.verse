@@ -23,7 +23,7 @@ BehaviorKaijuLg := class(NPC_Kaiju):
     var poiMoveCount : int = 0
     @editable poi_switch_interval : float = 60.0  # Move every 60 seconds
 
-    var Attack1 : animation_sequence = (/anigab@fortnite.com/MahouRobo/Kaiju:)Giant_Anim_EnemyArmature_Attack
+    var Attack1 : animation_sequence = (/anigab@fortnite.com/MahouRobo/Kaiju:)anim_kaiju_big_footslam
 
     # Fire projectile at targeted player
     FireProjectile(Target:vector3)<suspends>:void =

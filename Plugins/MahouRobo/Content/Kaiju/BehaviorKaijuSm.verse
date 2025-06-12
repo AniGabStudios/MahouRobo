@@ -20,7 +20,7 @@ BehaviorKaijuSm := class(NPC_Kaiju):
     @editable safe_distance : float := 1000.0        # Ideal distance from player
     @editable min_attack_distance : float := 400.0  # When to attack
     @editable retreat_distance : float := 600.0     # How far to back up when too close
-    var Attack1 : animation_sequence = (/anigab@fortnite.com/MahouRobo/Kaiju:)Demon_Anim_EnemyArmature_Attack
+    var Attack1 : animation_sequence = (/anigab@fortnite.com/MahouRobo/Kaiju:)anim_kaiju_small_attack_ranged
 
     # This function runs when the NPC is spawned in the world and ready to follow a behavior.
     OnBegin<override>()<suspends>:void=

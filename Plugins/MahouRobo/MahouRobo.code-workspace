@@ -1,11 +1,11 @@
 {
     "folders": [
         {
-            "name": "MahouRobo",
+            "name": "/anigab@fortnite.com/MahouRobo",
             "path": "C:/Projects/mahourobo/Plugins/MahouRobo/Content"
         },
         {
-            "name": "MahouRobo/Assets",
+            "name": "/anigab@fortnite.com/MahouRobo (Assets)",
             "path": "C:/Users/Admin/AppData/Local/UnrealEditorFortnite/Saved/VerseProject/MahouRobo/MahouRobo-Assets"
         },
         {
@@ -13,15 +13,15 @@
             "path": "C:/Users/Admin/AppData/Local/UnrealEditorFortnite/Saved/VerseProject/MahouRobo/vproject"
         },
         {
-            "name": "Verse",
+            "name": "/Verse.org",
             "path": "C:/Users/Admin/AppData/Local/UnrealEditorFortnite/Saved/VerseProject/MahouRobo/Verse"
         },
         {
-            "name": "UnrealEngine",
+            "name": "/UnrealEngine.com",
             "path": "C:/Users/Admin/AppData/Local/UnrealEditorFortnite/Saved/VerseProject/MahouRobo/UnrealEngine"
         },
         {
-            "name": "Fortnite",
+            "name": "/Fortnite.com",
             "path": "C:/Users/Admin/AppData/Local/UnrealEditorFortnite/Saved/VerseProject/MahouRobo/Fortnite"
         }
     ],
@@ -35,7 +35,9 @@
             "_INT": true,
             "**/*.vproject": true,
             "__ExternalActors__": true,
-            "__ExternalObjects__": true
+            "__ExternalObjects__": true,
+            "Collections": true,
+            "Developers": true
         },
         "files.autoSave": "onWindowChange",
         "workbench.colorTheme": "Verse (Dark)",

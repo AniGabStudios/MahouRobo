@@ -17,7 +17,7 @@ BehaviorKaijuMd := class(NPC_Kaiju):
     @editable safe_distance : float := 1000.0 
     @editable min_attack_distance : float := 400.0
     @editable move_speed : float := 20.0
-    var Attack1 : animation_sequence = (/anigab@fortnite.com/MahouRobo/Kaiju:)Yeti_Anim_EnemyArmature_Attack
+    var Attack1 : animation_sequence = (/anigab@fortnite.com/MahouRobo/Kaiju:)anim_kaiju_medium_attack_ranged
 
     # This function runs when the NPC is spawned in the world and ready to follow a behavior.
     OnBegin<override>()<suspends>:void =
