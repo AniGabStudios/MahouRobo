@@ -12,7 +12,7 @@ timed_event<public> := class():
 
 # A Verse-authored creative device that can be placed in a level
 timer_manager<public> := class(creative_device,event_listener):
-    @editable Duration: float = 1800.0
+    @editable Duration: float = 900.0
     @editable Timer: timer_device = timer_device{}
 
     @editable var TimedEvents : []timed_event = array{}
