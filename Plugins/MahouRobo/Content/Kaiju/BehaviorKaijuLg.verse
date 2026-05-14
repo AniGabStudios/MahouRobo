@@ -169,9 +169,9 @@ BehaviorKaijuLg := class(NPC_Kaiju):
             Delay := GetRandomFloat(0.1, attack_delay_variance)
             Sleep(Delay)
     
-            result := NPCAnim.PlayAndAwait(Attack1)
+            Aresult := NPCAnim.PlayAndAwait(Attack1)
     
-            if (result = play_animation_result.Completed):
+            if (Aresult = play_animation_result.Completed):
                 set lastTargetLocation = vector3{X := 0.0, Y := 0.0, Z := 0.0}
                 GetGlobalBus().Notify(
                     "LrgKaijuAttacked",

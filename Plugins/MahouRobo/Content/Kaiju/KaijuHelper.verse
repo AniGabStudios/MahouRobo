@@ -10,7 +10,7 @@ KaiJuHelperTag:= class(tag){}
 KaijuHelper := class(creative_device,event_listener):
     @editable KaijutHitVFX: creative_prop_asset = DefaultCreativePropAsset
     OnBegin<override>()<suspends>:void =
-        KaiJuTags:=FindCreativeObjectsWithTag(KaijuBehaviourTag{})
+        KaiJuTags:=FindCreativeObjectsWithTag(KaijuBehaviourTag)
 
         for(KT:KaiJuTags,Kai:=NPC_Kaiju[KT]):
             set Kai.HelperFunc = Self;
