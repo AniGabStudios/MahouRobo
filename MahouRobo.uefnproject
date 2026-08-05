@@ -39,9 +39,51 @@
 		{
 			"nativeCulture": "en",
 			"culturesToGenerate": [
-				"en"
+				"ar",
+				"de",
+				"en",
+				"es",
+				"es-419",
+				"fr",
+				"id",
+				"it",
+				"ja",
+				"ko",
+				"pl",
+				"pt-BR",
+				"ru",
+				"th",
+				"tr",
+				"vi",
+				"zh-Hans",
+				"zh-Hant"
 			],
 			"poFormat": "Unreal"
+		},
+		"autoLocalization":
+		{
+			"bAutoBuildLocalization": true,
+			"cultures": [
+				"ar",
+				"de",
+				"en",
+				"es",
+				"es-419",
+				"fr",
+				"id",
+				"it",
+				"ja",
+				"ko",
+				"pl",
+				"pt-BR",
+				"ru",
+				"th",
+				"tr",
+				"vi",
+				"zh-Hans",
+				"zh-Hant"
+			],
+			"mode": "Untranslated"
 		}
 	},
 	"bindings":
