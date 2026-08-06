@@ -19,6 +19,11 @@ team_score_manager := class(creative_device,event_listener):
     @editable
     var HudMessages : []hud_message_device = array{}
 
+    # The persistent frame/background for the two score values. This is kept
+    # separate because HudMessages contains only the per-team number widgets.
+    @editable
+    ScoringHudVisuals : hud_message_device = hud_message_device{}
+
     @editable
     var GameEnders : []end_game_device = array{}
 
@@ -32,16 +37,16 @@ team_score_manager := class(creative_device,event_listener):
         GetGlobalBus().Subscribe("RoundEnd","team_score_manager", Self)
         GetGlobalBus().Subscribe("PlayerEliminatedKaiju","team_score_manager", Self)
         GetGlobalBus().Subscribe("PlayerEliminatedPlayer","team_score_manager", Self)
+        GetGlobalBus().Subscribe("TeamSelected","team_score_manager", Self)
         ClearScores()
        
     ClearScores(): void = 
         set Scores =
-            for (i := 0..Teams.Length):
+            for (CurrentTeam : Teams):
                 0
 
         for(Hud:HudMessages):
             Hud.SetText(IntToMessage(0))
-            Hud.Show()
 
     OnEvent<override>(EventName: string, Data:eventdata) : void =
         case (EventName):
@@ -51,9 +56,21 @@ team_score_manager := class(creative_device,event_listener):
             "PlayerEliminatedKaiju" =>
                 if(MaybeAgentMap:=Data.AgentMap?, Agent:= MaybeAgentMap["killer"], Points:= Data.ValueI):
                     AwardTeamPoints(Agent,Points)
+            "TeamSelected" =>
+                if (PlayerAgent := Data.Agent?):
+                    spawn{ShowScoringHud(PlayerAgent)}
             "RoundEnd" =>
                 EndGame()
             _ => # default
+
+    ShowScoringHud(PlayerAgent:agent)<suspends>:void=
+        # Let the conversation modal finish releasing the player's UI stack
+        # before restoring the persistent HUD Message widgets.
+        Sleep(0.25)
+        ScoringHudVisuals.Show(PlayerAgent)
+        for (Hud : HudMessages):
+            Hud.Show(PlayerAgent)
+        Print("[ScoreHUD] Shown after team selection. ScoreWidgets={HudMessages.Length}")
 
 
     AwardTeamPoints(Agent:agent, Points:int):void=

@@ -5,7 +5,7 @@
 	"description": "",
 	"keyArt": "",
 	"docsUrl": "",
-	"compatibilityVersion": "40.40",
+	"compatibilityVersion": "41.30",
 	"requiredRedirectorStartingVersion": "34.21.41092960",
 	"editorPermissions": [],
 	"epicApp": "",
@@ -33,6 +33,9 @@
 			"overtimePlayerTarget": 1,
 			"queueMainDuration": 5,
 			"queueOvertimeDuration": 5,
+			"useSkillBasedMatchmaking": false,
+			"ratingType": "",
+			"splitscreenDisabled": true,
 			"version": 1
 		},
 		"ugcLocalization":
