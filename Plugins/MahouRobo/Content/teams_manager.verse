@@ -40,12 +40,19 @@ teams_manager := class(creative_device,event_listener):
     # Runs when the device is started in a running game
     OnBegin<override>()<suspends>:void =
 
-        GetGlobalBus().Subscribe("RoundStart","timer_manager", Self)
-        GetGlobalBus().Subscribe("PlayerJoined","timer_manager", Self)
+        GetGlobalBus().Subscribe("RoundStart","teams_manager", Self)
+        GetGlobalBus().Subscribe("PlayerJoined","teams_manager", Self)
         GetGlobalBus().Subscribe("PlayerTakenDamage","team_manager", Self)
+        TeamSelect.Enable()
         TeamSelect.OnConversationEvent.Subscribe(OnPlayerChoseTeam)
+        TeamSelect.EndEvent.Subscribe(OnTeamConversationEnded)
+        TeamSelect.CancelEvent.Subscribe(OnTeamConversationCancelled)
+        LobbySelector.TeamSwitchedEvent.Subscribe(OnLobbyTeamSwitched)
+        LobbySelector.ClassSwitchedEvent.Subscribe(OnLobbyClassSwitched)
         
         set Teams = Self.GetPlayspace().GetTeamCollection().GetTeams()
+        Print("[TeamSelect] Manager ready. Players={Self.GetPlayspace().GetPlayers().Length}, Teams={Teams.Length}, AllowedConversations={TeamSelect.AllowedConversationCount}")
+        LogConversationDiagnostics(false, -1)
 
     OnEvent<override>(EventName: string, Data:eventdata) : void =
         if (EventName = "RoundStart"):
@@ -86,9 +93,78 @@ teams_manager := class(creative_device,event_listener):
                     if(Char.TeleportTo[PadLocation.Translation, rotation{}]):
 
     StartTeamSelection(PlayerAgent:agent)<suspends>:void=
+        Print("[TeamSelect] Selection requested")
+        LogPlayerTeam(PlayerAgent, "before lobby switch")
         LobbySelector.ChangeTeamAndClass(PlayerAgent)
-        TeleportToRandomPad(PlayerAgent,PreTeamSpawnPads)
-        TeamSelect.InitiateConversation(PlayerAgent)
+        Print("[TeamSelect] Lobby ChangeTeamAndClass requested")
+
+        # Changing team/class can rebuild the player's pawn and UI. Starting the
+        # conversation during that transition is silently ignored by the device.
+        Sleep(1.0)
+        LogPlayerTeam(PlayerAgent, "after lobby switch")
+
+        var Attempts:int = 0
+        loop:
+            if (TeamSelect.CanInitiateConversation[PlayerAgent]):
+                Print("[TeamSelect] CanInitiateConversation succeeded on attempt {Attempts}")
+                TeleportToRandomPad(PlayerAgent, PreTeamSpawnPads)
+                TeamSelect.InitiateConversation(PlayerAgent)
+                Print("[TeamSelect] InitiateConversation called")
+                break
+
+            LogConversationDiagnostics(option{PlayerAgent}, Attempts)
+
+            if (Attempts >= 20):
+                Print("[TeamSelect] FAILED: conversation could not start after waiting for the player")
+                break
+
+            Sleep(0.25)
+            set Attempts += 1
+
+    LogConversationDiagnostics(MaybePlayer:?agent, Attempt:int):void=
+        var DeviceState:string = "disabled"
+        if (TeamSelect.IsEnabled[]):
+            set DeviceState = "enabled"
+
+        var PlayerState:string = "not supplied"
+        var ConversationState:string = "not supplied"
+        if (PlayerAgent := MaybePlayer?):
+            set PlayerState = "missing fort_character"
+            if (FortCharacter := PlayerAgent.GetFortCharacter[]):
+                set PlayerState = "inactive fort_character"
+                if (FortCharacter.IsActive[]):
+                    set PlayerState = "active fort_character"
+
+            set ConversationState = "not in conversation"
+            if (TeamSelect.IsAgentInConversation[PlayerAgent]):
+                set ConversationState = "already in conversation"
+
+        Print("[TeamSelect] Diagnostics attempt={Attempt}: Device={DeviceState}, Player={PlayerState}, Agent={ConversationState}, ActiveConversations={TeamSelect.GetActiveConversationsCount()}, AllowedConversations={TeamSelect.AllowedConversationCount}")
+
+    LogPlayerTeam(PlayerAgent:agent, Stage:string):void=
+        var TeamFound:logic = false
+        TeamCollection:=Self.GetPlayspace().GetTeamCollection()
+        for(TeamIndex -> CurrentTeam : Teams):
+            if(TeamCollection.IsOnTeam[PlayerAgent,CurrentTeam]):
+                set TeamFound = true
+                Print("[TeamSelect] Player team {Stage}: index={TeamIndex}")
+
+        if (not TeamFound?):
+            Print("[TeamSelect] Player team {Stage}: not found in Teams array")
+
+    OnLobbyTeamSwitched(PlayerAgent:agent):void=
+        Print("[TeamSelect] LobbySelector TeamSwitchedEvent fired")
+        LogPlayerTeam(PlayerAgent, "team switch event")
+
+    OnLobbyClassSwitched(PlayerAgent:agent):void=
+        Print("[TeamSelect] LobbySelector ClassSwitchedEvent fired")
+
+    OnTeamConversationEnded(PlayerAgent:agent):void=
+        Print("[TeamSelect] Conversation EndEvent fired")
+        GetGlobalBus().Notify("TeamSelected", eventdata{Agent:=option{PlayerAgent}})
+
+    OnTeamConversationCancelled(PlayerAgent:agent):void=
+        Print("[TeamSelect] Conversation CancelEvent fired")
 
     OnPlayerChoseTeam(Player:agent, Index:int):void=
 
@@ -109,11 +185,11 @@ teams_manager := class(creative_device,event_listener):
             AssignTeamLoadout(Player)
             MagicalGirlSelectAudio.Play(Player)
 
-        for(i := 0..Teams.Length):
+        for(i -> CurrentTeam : Teams):
             TeamCollection:=Self.GetPlayspace().GetTeamCollection()
-                if(TeamCollection.IsOnTeam[Player,Teams[i]]):
+                if(TeamCollection.IsOnTeam[Player,CurrentTeam]):
                     Print("Player is on Team {i}")
-               
+
     AssignTeamLoadout(InPlayer : agent) : void = 
         teamCollection := Self.GetPlayspace().GetTeamCollection()
         if(teamCollection.IsOnTeam[InPlayer, Teams[0]]):
